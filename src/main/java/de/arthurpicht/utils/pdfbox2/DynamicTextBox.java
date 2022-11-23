@@ -17,7 +17,7 @@ import static de.arthurpicht.utils.core.assertion.MethodPreconditions.assertArgu
 public class DynamicTextBox {
 
     private final PDFont pdFont;
-    private final int fontSize;
+    private final float fontSize;
     private final float leading;
     private final float width;
     private final List<String> wrappedText;
@@ -26,7 +26,7 @@ public class DynamicTextBox {
     public DynamicTextBox(
             String text,
             PDFont pdFont,
-            int fontSize,
+            float fontSize,
             float leading,
             float width)
             throws UtilsPdfbox2Exception {

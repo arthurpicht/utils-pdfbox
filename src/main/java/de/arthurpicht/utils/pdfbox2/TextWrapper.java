@@ -75,7 +75,8 @@ public class TextWrapper {
 
     private static float getWidth(TextWrapperConfig textWrapperConfig, String string) throws UtilsPdfbox2Exception {
         try {
-            return textWrapperConfig.getPdFont().getStringWidth(string) / 1000 * textWrapperConfig.getFontSize();
+            return PdfUtils.getWidth(textWrapperConfig.getPdFont(), textWrapperConfig.getFontSize(), string);
+//            return textWrapperConfig.getPdFont().getStringWidth(string) / 1000 * textWrapperConfig.getFontSize();
         } catch (IOException e) {
             throw new UtilsPdfbox2Exception(e.getMessage(), e);
         }

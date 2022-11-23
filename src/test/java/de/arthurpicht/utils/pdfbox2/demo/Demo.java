@@ -35,6 +35,8 @@ public class Demo {
                 200
         );
 
+        System.out.println("Precalculated height: " + dynamicTextBox.getTextBoxDimensions().getHeight());
+
         dynamicTextBox.renderWithFirstBaselineAsReference(50, 500, pdPageContentStream);
         dynamicTextBox.renderMatrixWithFirstBaselineAsReference(50, 500, pdPageContentStream);
 

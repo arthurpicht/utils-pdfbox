@@ -5,10 +5,10 @@ import org.apache.pdfbox.pdmodel.font.PDFont;
 public class TextWrapperConfig {
 
     private final PDFont pdFont;
-    private final int fontSize;
+    private final float fontSize;
     private final float width;
 
-    public TextWrapperConfig(PDFont pdFont, int fontSize, float width) {
+    public TextWrapperConfig(PDFont pdFont, float fontSize, float width) {
         this.pdFont = pdFont;
         this.fontSize = fontSize;
         this.width = width;
@@ -18,7 +18,7 @@ public class TextWrapperConfig {
         return pdFont;
     }
 
-    public int getFontSize() {
+    public float getFontSize() {
         return fontSize;
     }
 

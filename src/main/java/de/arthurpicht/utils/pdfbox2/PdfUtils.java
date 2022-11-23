@@ -6,7 +6,7 @@ import java.io.IOException;
 
 public class PdfUtils {
 
-    private static float getWidth(PDFont pdFont, int fontSize, String string) throws IOException {
+    public static float getWidth(PDFont pdFont, float fontSize, String string) throws IOException {
         return pdFont.getStringWidth(string) / 1000 * fontSize;
     }
 
