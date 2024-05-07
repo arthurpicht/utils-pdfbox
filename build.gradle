@@ -3,13 +3,7 @@ plugins {
 }
 
 group 'com.github.arthurpicht'
-version '0.0.1'
-
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(11)
-    }
-}
+version '0.0.2'
 
 repositories {
     mavenCentral()
@@ -18,11 +12,11 @@ repositories {
 
 dependencies {
 
-    implementation 'com.github.arthurpicht:utils-core:1.13.0'
-    implementation 'org.apache.pdfbox:pdfbox:2.0.27'
+    implementation 'com.github.arthurpicht:utils-core:1.13.1'
+    implementation 'org.apache.pdfbox:pdfbox:2.0.31'
 
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.2'
 }
 
 test {
