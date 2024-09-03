@@ -1,4 +1,4 @@
-# utils-pdfbox2
+# utils-pdfbox
 
 ## See also
 
