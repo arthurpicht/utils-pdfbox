@@ -5,7 +5,9 @@ import de.arthurpicht.utils.pdfbox2.UtilsPdfbox2Exception;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -29,7 +31,7 @@ public class Demo {
         DynamicTextBox dynamicTextBox = new DynamicTextBox(
                 "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor" +
                         " invidunt ut labore et dolore magna aliquyam erat",
-                PDType1Font.COURIER,
+                new PDType1Font(Standard14Fonts.FontName.COURIER),
                 12,
                 14.5f,
                 200
