@@ -1,6 +1,7 @@
 package de.arthurpicht.utils.pdfbox2;
 
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -14,7 +15,7 @@ class TextWrapperTest {
     public void plausibility() throws UtilsPdfbox2Exception {
 
         TextWrapperConfig textWrapperConfig = new TextWrapperConfig(
-                PDType1Font.COURIER,
+                new PDType1Font(Standard14Fonts.FontName.COURIER),
                 12,
                 100);
 
@@ -46,7 +47,7 @@ class TextWrapperTest {
     @Test
     public void plausibilityLongWords() throws UtilsPdfbox2Exception {
         TextWrapperConfig textWrapperConfig = new TextWrapperConfig(
-                PDType1Font.COURIER,
+                new PDType1Font(Standard14Fonts.FontName.COURIER),
                 12,
                 100);
 
@@ -78,7 +79,7 @@ class TextWrapperTest {
     @Test
     public void plausibilityWhitespace() throws UtilsPdfbox2Exception {
         TextWrapperConfig textWrapperConfig = new TextWrapperConfig(
-                PDType1Font.COURIER,
+                new PDType1Font(Standard14Fonts.FontName.COURIER),
                 12,
                 100);
 
