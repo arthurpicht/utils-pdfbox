@@ -1,5 +1,7 @@
 package de.arthurpicht.utils.pdfbox2;
 
+import de.arthurpicht.utils.pdfbox2.TextWrapperConfig.BreakType;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,27 +22,43 @@ public class TextWrapper {
      * @throws UtilsPdfbox2Exception
      */
     public static List<String> wrap(TextWrapperConfig textWrapperConfig, String string) throws UtilsPdfbox2Exception {
+
+        BreakType breakType = textWrapperConfig.getBreakType();
+        char lineBreakChar = textWrapperConfig.getLineBreakChar();
         List<String> result = new ArrayList<>();
 
         do {
-            string = string.trim();
-            String chunk = findNextMatchingSubstring(textWrapperConfig, string);
-//            System.out.println("found next substring [" + chunk + "]");
-            if (!endsWithWordEnd(string, chunk)) {
-                chunk = applyWordBreaks(chunk);
-//                System.out.println("matching word        [" + chunk + "]");
-            }
-            result.add(chunk.trim());
+            String chunk = findNextMatchingSubstring(textWrapperConfig, string, result.size());
+//            System.out.println("width matching substring : [" + chunk + "]");
+
+            chunk = applyWordBreaks(string, chunk.length() - 1, breakType, lineBreakChar);
+//            System.out.println("broken substring         : [" + chunk + "]");
+
             string = string.substring(chunk.length());
+            if (textWrapperConfig.getBreakType() == BreakType.OMIT_CHAR) {
+                chunk = StringUtils.trim(chunk, textWrapperConfig.getLineBreakChar());
+                string = StringUtils.trim(string, textWrapperConfig.getLineBreakChar());
+            }
+            result.add(chunk);
+//            System.out.println("add to result            : [" + chunk + "]");
+//            System.out.println("remaining string         : [" + string + "]");
+//            System.out.println("---");
         } while (!string.isEmpty());
 
         return result;
     }
 
-    private static String findNextMatchingSubstring(TextWrapperConfig textWrapperConfig, String string) throws UtilsPdfbox2Exception {
+    private static String findNextMatchingSubstring(TextWrapperConfig textWrapperConfig, String string, int lineNumber)
+            throws UtilsPdfbox2Exception {
+
         for (int i = 1; i < string.length(); i++) {
             String probe = string.substring(0, i);
-            float width = getWidth(textWrapperConfig, probe);
+            float width;
+            if (lineNumber == 0) {
+                width = getWidth(textWrapperConfig, probe);
+            } else {
+                width = textWrapperConfig.getIndent() + getWidth(textWrapperConfig, probe);
+            }
             if (width > textWrapperConfig.getWidth()) {
                 if (i > 1) {
                     return string.substring(0, i - 1);
@@ -52,25 +70,28 @@ public class TextWrapper {
         return string;
     }
 
-    private static boolean endsWithWordEnd(String string, String substring) {
-        if (!string.startsWith(substring)) throw new IllegalArgumentException("Not a substring.");
-        if (string.equals(substring)) return true;
-        return string.charAt(substring.length() - 1) == ' ' || string.charAt(substring.length()) == ' ';
+    static String applyWordBreaks(String string, int index, BreakType breakType, char lineBreakChar) {
+        for (int i = index; i >= 0; i--) {
+            if (isWordEnd(string, i, breakType, lineBreakChar)) return string.substring(0, i + 1);
+        }
+        return string.substring(0, index + 1);
     }
 
-    private static String applyWordBreaks(String string) {
-        if (string.endsWith(" ")) return string;
-        if (!string.contains(" ")) return string;
-        for (int i = string.length() - 1; i >= 0; i--) {
-            if (string.charAt(i) == ' ') {
-                if (i > 0) {
-                    return string.substring(0, i);
-                } else {
-                    return " ";
-                }
-            }
+    static boolean isWordEnd(String string, int index, BreakType breakType, char lineBreakChar) {
+
+//        System.out.println("isWordEnd? string [" + string + "], index [" + index + "]");
+
+        if (index >= string.length()) throw new IllegalArgumentException("Index out of bounds.");
+        if (string.length() == index + 1) return true;
+
+        if (breakType == BreakType.BREAK_BEFORE) {
+            return string.charAt(index + 1) == lineBreakChar;
+        } else if (breakType == BreakType.BREAK_AFTER) {
+            return string.charAt(index) == lineBreakChar;
+        } else {
+            return string.charAt(index + 1) == lineBreakChar
+                   || string.charAt(index) == lineBreakChar;
         }
-        return string;
     }
 
     private static float getWidth(TextWrapperConfig textWrapperConfig, String string) throws UtilsPdfbox2Exception {

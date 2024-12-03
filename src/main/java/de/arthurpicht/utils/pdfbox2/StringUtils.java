@@ -1,5 +1,6 @@
 package de.arthurpicht.utils.pdfbox2;
 
+import de.arthurpicht.utils.core.assertion.MethodPreconditions;
 import de.arthurpicht.utils.core.strings.Strings;
 
 import java.util.ArrayList;
@@ -17,6 +18,24 @@ public class StringUtils {
         }
         paragraphs.add(work);
         return paragraphs;
+    }
+
+    public static String trim(String string, char trimChar) {
+        MethodPreconditions.assertArgumentNotNull("string", string);
+        if (string.isEmpty()) return string;
+
+        int start = 0;
+        int end = string.length() - 1;
+
+        while (start <= end && string.charAt(start) == trimChar) {
+            start++;
+        }
+
+        while (end >= start && string.charAt(end) == trimChar) {
+            end--;
+        }
+
+        return string.substring(start, end + 1);
     }
 
 }
