@@ -1,7 +1,5 @@
 package de.arthurpicht.utils.pdfbox2;
 
-import de.arthurpicht.utils.pdfbox2.TextWrapperConfig.BreakType;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,16 +17,20 @@ public class TextWrapper {
      * @param textWrapperConfig
      * @param string string to be wrapped
      * @return list of strings
-     * @throws UtilsPdfbox2Exception
+     * @throws UtilsPdfboxException
      */
-    public static List<String> wrap(TextWrapperConfig textWrapperConfig, String string) throws UtilsPdfbox2Exception {
+    public static List<String> wrap(TextWrapperConfig textWrapperConfig, String string) throws UtilsPdfboxException {
 
         BreakType breakType = textWrapperConfig.getBreakType();
         char lineBreakChar = textWrapperConfig.getLineBreakChar();
         List<String> result = new ArrayList<>();
+        IndentResolver indentResolver = new IndentResolver(textWrapperConfig.getIndentType());
 
         do {
-            String chunk = findNextMatchingSubstring(textWrapperConfig, string, result.size());
+            String chunk = findNextMatchingSubstring(
+                    textWrapperConfig,
+                    string,
+                    indentResolver.applyIndent(result.size()));
 //            System.out.println("width matching substring : [" + chunk + "]");
 
             chunk = applyWordBreaks(string, chunk.length() - 1, breakType, lineBreakChar);
@@ -48,22 +50,22 @@ public class TextWrapper {
         return result;
     }
 
-    private static String findNextMatchingSubstring(TextWrapperConfig textWrapperConfig, String string, int lineNumber)
-            throws UtilsPdfbox2Exception {
+    private static String findNextMatchingSubstring(TextWrapperConfig textWrapperConfig, String string, boolean applyIndent)
+            throws UtilsPdfboxException {
 
         for (int i = 1; i < string.length(); i++) {
             String probe = string.substring(0, i);
             float width;
-            if (lineNumber == 0) {
-                width = getWidth(textWrapperConfig, probe);
-            } else {
+            if (applyIndent) {
                 width = textWrapperConfig.getIndent() + getWidth(textWrapperConfig, probe);
+            } else {
+                width = getWidth(textWrapperConfig, probe);
             }
             if (width > textWrapperConfig.getWidth()) {
                 if (i > 1) {
                     return string.substring(0, i - 1);
                 } else {
-                    throw new UtilsPdfbox2Exception("width too small.");
+                    throw new UtilsPdfboxException("width too small.");
                 }
             }
         }
@@ -94,12 +96,12 @@ public class TextWrapper {
         }
     }
 
-    private static float getWidth(TextWrapperConfig textWrapperConfig, String string) throws UtilsPdfbox2Exception {
+    private static float getWidth(TextWrapperConfig textWrapperConfig, String string) throws UtilsPdfboxException {
         try {
             return PdfUtils.getWidth(textWrapperConfig.getPdFont(), textWrapperConfig.getFontSize(), string);
 //            return textWrapperConfig.getPdFont().getStringWidth(string) / 1000 * textWrapperConfig.getFontSize();
         } catch (IOException e) {
-            throw new UtilsPdfbox2Exception(e.getMessage(), e);
+            throw new UtilsPdfboxException(e.getMessage(), e);
         }
     }
 

@@ -1,6 +1,5 @@
 package de.arthurpicht.utils.pdfbox2;
 
-import de.arthurpicht.utils.pdfbox2.TextWrapperConfig.BreakType;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 import org.junit.jupiter.api.Test;
@@ -13,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class TextWrapperTest {
 
     @Test
-    public void plausibility() throws UtilsPdfbox2Exception {
+    public void plausibility() throws UtilsPdfboxException {
 
         TextWrapperConfig textWrapperConfig = new TextWrapperConfig(
                 new PDType1Font(Standard14Fonts.FontName.COURIER),
@@ -46,7 +45,7 @@ class TextWrapperTest {
     }
 
     @Test
-    public void plausibilityLongWords() throws UtilsPdfbox2Exception {
+    public void plausibilityLongWords() throws UtilsPdfboxException {
         TextWrapperConfig textWrapperConfig = new TextWrapperConfig(
                 new PDType1Font(Standard14Fonts.FontName.COURIER),
                 12,
@@ -78,7 +77,7 @@ class TextWrapperTest {
     }
 
     @Test
-    public void plausibilityWhitespace() throws UtilsPdfbox2Exception {
+    public void plausibilityWhitespace() throws UtilsPdfboxException {
         TextWrapperConfig textWrapperConfig = new TextWrapperConfig(
                 new PDType1Font(Standard14Fonts.FontName.COURIER),
                 12,
@@ -122,7 +121,7 @@ class TextWrapperTest {
     }
 
     @Test
-    public void plausibilitySlash() throws UtilsPdfbox2Exception {
+    public void plausibilitySlashBefore() throws UtilsPdfboxException {
 
         TextWrapperConfig textWrapperConfig = new TextWrapperConfig(
                 new PDType1Font(Standard14Fonts.FontName.COURIER),
@@ -130,7 +129,8 @@ class TextWrapperTest {
                 100,
                 '/',
                 BreakType.BREAK_BEFORE,
-                0);
+                0,
+                IndentType.NONE);
 
         String text = "Lorem/ipsum/dolor/sit/amet,/consetetur/sadipscing/elitr,/sed/diam/nonumy/eirmod/tempor" +
                       "/invidunt/ut/labore/et/dolore/magna/aliquyam/erat";
@@ -157,6 +157,45 @@ class TextWrapperTest {
 
         assertEquals(expected, wrappedText);
     }
+
+    @Test
+    public void plausibilitySlashAfter() throws UtilsPdfboxException {
+
+        TextWrapperConfig textWrapperConfig = new TextWrapperConfig(
+                new PDType1Font(Standard14Fonts.FontName.COURIER),
+                12,
+                100,
+                '/',
+                BreakType.BREAK_AFTER,
+                0,
+                IndentType.NONE);
+
+        String text = "Lorem/ipsum/dolor/sit/amet,/consetetur/sadipscing/elitr,/sed/diam/nonumy/eirmod/tempor" +
+                "/invidunt/ut/labore/et/dolore/magna/aliquyam/erat";
+
+        List<String> wrappedText = TextWrapper.wrap(textWrapperConfig, text);
+
+        List<String> expected = Arrays.asList(
+                "Lorem/ipsum/",
+                "dolor/sit/",
+                "amet,/",
+                "consetetur/",
+                "sadipscing/",
+                "elitr,/sed/",
+                "diam/nonumy/",
+                "eirmod/",
+                "tempor/",
+                "invidunt/ut/",
+                "labore/et/",
+                "dolore/magna/",
+                "aliquyam/erat"
+        );
+
+        wrappedText.forEach(System.out::println);
+
+        assertEquals(expected, wrappedText);
+    }
+
 
     @Test
     void applyWordBreaks() {
@@ -190,6 +229,5 @@ class TextWrapperTest {
         assertTrue(TextWrapper.isWordEnd(string, 3, BreakType.OMIT_CHAR, 'X'));
         assertFalse(TextWrapper.isWordEnd(string, 4, BreakType.OMIT_CHAR, 'X'));
     }
-
 
 }
