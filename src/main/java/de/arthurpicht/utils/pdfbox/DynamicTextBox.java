@@ -1,4 +1,4 @@
-package de.arthurpicht.utils.pdfbox2;
+package de.arthurpicht.utils.pdfbox;
 
 import de.arthurpicht.utils.core.strings.Strings;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -155,7 +155,17 @@ public class DynamicTextBox {
     public void renderWithFirstBaselineAsReference(float x, float y, PDPageContentStream pdPageContentStream)
             throws UtilsPdfboxException {
 
-        render(x, y, pdPageContentStream);
+        PdfRenderer.renderParagraphWithFirstBaselineAsReference(
+                this.wrappedText,
+                x,
+                y,
+                this.pdFont,
+                this.fontSize,
+                this.leading,
+                this.indent,
+                this.indentType,
+                pdPageContentStream
+        );
     }
 
     /**
@@ -169,8 +179,17 @@ public class DynamicTextBox {
     public void renderWithUpperLeftCornerAsReference(float x, float y, PDPageContentStream pdPageContentStream)
             throws UtilsPdfboxException {
 
-        y = y - PdfUtils.getFontHeight(this.pdFont, this.fontSize);
-        render(x, y, pdPageContentStream);
+        PdfRenderer.renderParagraphWithUpperLeftCornerAsReference(
+                this.wrappedText,
+                x,
+                y,
+                this.pdFont,
+                this.fontSize,
+                this.leading,
+                this.indent,
+                this.indentType,
+                pdPageContentStream
+        );
     }
 
     /**
@@ -227,25 +246,6 @@ public class DynamicTextBox {
             }
         } catch (IOException e) {
             throw new UtilsPdfboxException(e.getMessage(), e);
-        }
-    }
-
-    private void render(float x, float y, PDPageContentStream pdPageContentStream) throws UtilsPdfboxException {
-        float curY = y;
-        int linesProcessed = 0;
-        IndentResolver indentResolver = new IndentResolver(this.indentType);
-        for (String string : this.wrappedText) {
-            float curX = indentResolver.applyIndent(linesProcessed) ? x + this.indent : x;
-            PdfRenderer.renderLineOfText(
-                    string,
-                    curX,
-                    curY,
-                    this.pdFont,
-                    this.fontSize,
-                    this.leading,
-                    pdPageContentStream);
-            curY = curY - this.leading;
-            linesProcessed++;
         }
     }
 

@@ -1,4 +1,4 @@
-package de.arthurpicht.utils.pdfbox2;
+package de.arthurpicht.utils.pdfbox;
 
 import java.io.IOException;
 import java.util.ArrayList;

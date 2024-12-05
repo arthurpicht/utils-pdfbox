@@ -1,4 +1,4 @@
-package de.arthurpicht.utils.pdfbox2;
+package de.arthurpicht.utils.pdfbox;
 
 /**
  * Determines how to deal with characters that trigger line break:

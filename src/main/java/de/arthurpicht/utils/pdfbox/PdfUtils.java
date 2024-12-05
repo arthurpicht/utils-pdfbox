@@ -1,4 +1,4 @@
-package de.arthurpicht.utils.pdfbox2;
+package de.arthurpicht.utils.pdfbox;
 
 import org.apache.pdfbox.pdmodel.font.PDFont;
 

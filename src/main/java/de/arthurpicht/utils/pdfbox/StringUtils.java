@@ -1,4 +1,4 @@
-package de.arthurpicht.utils.pdfbox2;
+package de.arthurpicht.utils.pdfbox;
 
 import de.arthurpicht.utils.core.assertion.MethodPreconditions;
 import de.arthurpicht.utils.core.strings.Strings;

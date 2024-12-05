@@ -1,4 +1,4 @@
-package de.arthurpicht.utils.pdfbox2;
+package de.arthurpicht.utils.pdfbox;
 
 import org.apache.pdfbox.pdmodel.font.PDFont;
 
@@ -24,15 +24,15 @@ public class TextWrapperConfig {
 
     /**
      *
-     * @param pdFont
-     * @param fontSize
+     * @param pdFont pdFont
+     * @param fontSize font size
      * @param width maximum width of column
      * @param lineBreakChar break line at specified char
      * @param breakType Determines how to deal with characters that trigger line break:
      *      OMIT_CHAR = delete character in case of line break;
      *      BREAK_BEFORE = line break before character, character will be first char in next line;
      *      BREAK_AFTER = line break after character, character will be last character in broken line;
-     * @param indent
+     * @param indent indentation in same unit as width
      */
     public TextWrapperConfig(PDFont pdFont, float fontSize, float width, char lineBreakChar, BreakType breakType, float indent, IndentType indentType) {
         this.pdFont = pdFont;
