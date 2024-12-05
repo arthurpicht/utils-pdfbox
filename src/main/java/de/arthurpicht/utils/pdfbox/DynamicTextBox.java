@@ -1,8 +1,10 @@
-package de.arthurpicht.utils.pdfbox2;
+package de.arthurpicht.utils.pdfbox;
 
 import de.arthurpicht.utils.core.strings.Strings;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDFont;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 import org.apache.pdfbox.pdmodel.graphics.color.PDColor;
 import org.apache.pdfbox.pdmodel.graphics.color.PDDeviceRGB;
 
@@ -21,23 +23,110 @@ public class DynamicTextBox {
     private final float leading;
     private final float width;
     private final List<String> wrappedText;
+    private final char lineBreakCharacter;
+    private final BreakType breakType;
     private final TextBoxDimensions textBoxDimensions;
+    private final float indent;
+    private final IndentType indentType;
 
-    public DynamicTextBox(
+    @SuppressWarnings("unused")
+    public static class Builder {
+
+        private PDFont pdFont = new PDType1Font(Standard14Fonts.FontName.COURIER);
+        private float fontSize = 12;
+        private float leading = 14.5f;
+        private float width = 200;
+        private String text = "";
+        private char lineBreakCharacter = ' ';
+        private BreakType breakType = BreakType.OMIT_CHAR;
+        private float indent;
+        private IndentType indentType = IndentType.NONE;
+
+        public Builder withFont(PDFont pdFont) {
+            this.pdFont = pdFont;
+            return this;
+        }
+
+        public Builder withFontSize(float fontSize) {
+            this.fontSize = fontSize;
+            return this;
+        }
+
+        public Builder withLeading(float leading) {
+            this.leading = leading;
+            return this;
+        }
+
+        public Builder withWidth(float width) {
+            this.width = width;
+            return this;
+        }
+
+        public Builder withText(String text) {
+            this.text = text;
+            return this;
+        }
+
+        public Builder withLineBreakCharacter(char lineBreakCharacter) {
+            this.lineBreakCharacter = lineBreakCharacter;
+            return this;
+        }
+
+        public Builder withBreakType(BreakType breakType) {
+            this.breakType = breakType;
+            return this;
+        }
+
+        public Builder withIndent(float indent) {
+            this.indent = indent;
+            return this;
+        }
+
+        public Builder withIndentType(IndentType indentType) {
+            this.indentType = indentType;
+            return this;
+        }
+
+        public DynamicTextBox build() throws UtilsPdfboxException {
+            return new DynamicTextBox(
+                    this.text,
+                    this.pdFont,
+                    this.fontSize,
+                    this.leading,
+                    this.width,
+                    this.lineBreakCharacter,
+                    this.breakType,
+                    this.indent,
+                    this.indentType
+            );
+        }
+
+    }
+
+    private DynamicTextBox(
             String text,
             PDFont pdFont,
             float fontSize,
             float leading,
-            float width)
-            throws UtilsPdfbox2Exception {
+            float width,
+            char lineBreakCharacter,
+            BreakType breakType,
+            float indent,
+            IndentType indentType)
+            throws UtilsPdfboxException {
 
         assertArgumentNotNull("text", text);
         assertArgumentNotNull("pdFont", pdFont);
+        if (indent >= width) throw new IllegalArgumentException("Indent exceeding width.");
 
         this.pdFont = pdFont;
         this.fontSize = fontSize;
         this.leading = leading;
         this.width = width;
+        this.lineBreakCharacter = lineBreakCharacter;
+        this.breakType = breakType;
+        this.indent = indent;
+        this.indentType = indentType;
 
         List<String> paragraphs = StringUtils.cutInParagraphs(text);
         assertNoControlCharacters(paragraphs);
@@ -61,12 +150,22 @@ public class DynamicTextBox {
      * @param x x-coordinate
      * @param y y-coordinate of the beginning of the first baseline
      * @param pdPageContentStream
-     * @throws UtilsPdfbox2Exception
+     * @throws UtilsPdfboxException
      */
     public void renderWithFirstBaselineAsReference(float x, float y, PDPageContentStream pdPageContentStream)
-            throws UtilsPdfbox2Exception {
+            throws UtilsPdfboxException {
 
-        render(x, y, pdPageContentStream);
+        PdfRenderer.renderParagraphWithFirstBaselineAsReference(
+                this.wrappedText,
+                x,
+                y,
+                this.pdFont,
+                this.fontSize,
+                this.leading,
+                this.indent,
+                this.indentType,
+                pdPageContentStream
+        );
     }
 
     /**
@@ -75,13 +174,22 @@ public class DynamicTextBox {
      * @param x x-coordinate
      * @param y y-coordinate of the beginning of the first baseline
      * @param pdPageContentStream
-     * @throws UtilsPdfbox2Exception
+     * @throws UtilsPdfboxException
      */
     public void renderWithUpperLeftCornerAsReference(float x, float y, PDPageContentStream pdPageContentStream)
-            throws UtilsPdfbox2Exception {
+            throws UtilsPdfboxException {
 
-        y = y - PdfUtils.getFontHeight(this.pdFont, this.fontSize);
-        render(x, y, pdPageContentStream);
+        PdfRenderer.renderParagraphWithUpperLeftCornerAsReference(
+                this.wrappedText,
+                x,
+                y,
+                this.pdFont,
+                this.fontSize,
+                this.leading,
+                this.indent,
+                this.indentType,
+                pdPageContentStream
+        );
     }
 
     /**
@@ -90,10 +198,10 @@ public class DynamicTextBox {
      * @param x x coordinate
      * @param y y coordinate of the beginning first baseline
      * @param pdPageContentStream initialized PdPageContentStream
-     * @throws UtilsPdfbox2Exception
+     * @throws UtilsPdfboxException
      */
     public void renderMatrixWithFirstBaselineAsReference(float x, float y, PDPageContentStream pdPageContentStream)
-            throws UtilsPdfbox2Exception {
+            throws UtilsPdfboxException {
 
         renderMatrix(x, y, pdPageContentStream);
     }
@@ -104,16 +212,16 @@ public class DynamicTextBox {
      * @param x x-coordinate
      * @param y y-coordinate of upper left corner of border box
      * @param pdPageContentStream initialized PdPageContentStream
-     * @throws UtilsPdfbox2Exception
+     * @throws UtilsPdfboxException
      */
     public void renderMatrixWithUpperLeftCornerAsReference(float x, float y, PDPageContentStream pdPageContentStream)
-            throws UtilsPdfbox2Exception {
+            throws UtilsPdfboxException {
 
         y = y - PdfUtils.getFontHeight(this.pdFont, this.fontSize);
         renderMatrix(x, y, pdPageContentStream);
     }
 
-    private void renderMatrix(float x, float y, PDPageContentStream pdPageContentStream) throws UtilsPdfbox2Exception {
+    private void renderMatrix(float x, float y, PDPageContentStream pdPageContentStream) throws UtilsPdfboxException {
         float fontHeight = PdfUtils.getFontHeight(this.pdFont, this.fontSize);
 
         try {
@@ -137,23 +245,7 @@ public class DynamicTextBox {
                 pdPageContentStream.stroke();
             }
         } catch (IOException e) {
-            throw new UtilsPdfbox2Exception(e.getMessage(), e);
-        }
-    }
-
-    private void render(float x, float y, PDPageContentStream pdPageContentStream) throws UtilsPdfbox2Exception {
-        try {
-            pdPageContentStream.beginText();
-            pdPageContentStream.setFont(this.pdFont, this.fontSize);
-            pdPageContentStream.setLeading(this.leading);
-            pdPageContentStream.newLineAtOffset(x, y);
-            for (String string : this.wrappedText) {
-                pdPageContentStream.showText(string);
-                pdPageContentStream.newLine();
-            }
-            pdPageContentStream.endText();
-        } catch (IOException e) {
-            throw new UtilsPdfbox2Exception(e.getMessage(), e);
+            throw new UtilsPdfboxException(e.getMessage(), e);
         }
     }
 
@@ -164,8 +256,16 @@ public class DynamicTextBox {
         }
     }
 
-    private List<String> wrapText(List<String> paragraphs) throws UtilsPdfbox2Exception {
-        TextWrapperConfig textWrapperConfig = new TextWrapperConfig(this.pdFont, this.fontSize, this.width);
+    private List<String> wrapText(List<String> paragraphs) throws UtilsPdfboxException {
+        TextWrapperConfig textWrapperConfig =
+                new TextWrapperConfig(
+                        this.pdFont,
+                        this.fontSize,
+                        this.width,
+                        this.lineBreakCharacter,
+                        this.breakType,
+                        this.indent,
+                        this.indentType);
         List<String> wrappedText = new ArrayList<>();
         for (String paragraph : paragraphs) {
             List<String> wrappedParagraph = TextWrapper.wrap(textWrapperConfig, paragraph);
